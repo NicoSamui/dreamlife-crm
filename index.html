@@ -263,18 +263,23 @@ tr:last-child td{border-bottom:0}
 /* ============ DATEN ============ */
 const CFG={SUPA:'https://pkugrquuudreqkwletyv.supabase.co',ANON:'sb_publishable_h9GbkdiHyn8G4S3aoyVjpg_RafiGTS9',AI:'/.netlify/functions/ai'};
 /* LearningSuite ersetzt diese Platzhalter beim eingeloggten Mitglied automatisch. */
-const PLATFORM={id:"{{system.user.id}}",firstName:"{{system.user.firstName}}",lastName:"{{system.user.lastName}}"};
-function _v(x){return (x && (''+x).indexOf('{{')<0)?(''+x):'';}
+const PLATFORM={id:"{{system.user.id}}",firstName:"{{system.user.firstName}}",lastName:"{{system.user.lastName}}",dienstleistung:"{{dienstleistung}}",methode:"{{methode}}",zielgruppe:"{{zielgruppe-branche}}",angebotssatz:"{{angebotssatz}}"};
+function _v(x){return (x && (''+x).indexOf('{{')<0)?(''+x).trim():'';}
 function resolveUser(){
   const q=new URLSearchParams(location.search);
-  let id=q.get('uid')||_v(PLATFORM.id);
-  let fn=q.get('name')||_v(PLATFORM.firstName);
-  let ln=q.get('last')||_v(PLATFORM.lastName);
-  if(!id) return {id:'demo-guest',firstName:fn||'Demo',lastName:ln||'',guest:true};
-  return {id:id,firstName:fn,lastName:ln,guest:false};
+  const id=q.get('uid')||_v(PLATFORM.id);
+  return {id:id,
+    firstName:q.get('name')||_v(PLATFORM.firstName),
+    lastName:q.get('last')||_v(PLATFORM.lastName),
+    profile:{
+      dienstleistung:q.get('dienstleistung')||_v(PLATFORM.dienstleistung),
+      methode:q.get('methode')||_v(PLATFORM.methode),
+      zielgruppe:q.get('zielgruppe')||_v(PLATFORM.zielgruppe),
+      angebotssatz:q.get('angebot')||_v(PLATFORM.angebotssatz)
+    }};
 }
 const USER=resolveUser();
-const CLOUD=!USER.guest && /supabase\.co/.test(CFG.SUPA) && CFG.ANON.indexOf('sb_')===0;
+const CLOUD=!!USER.id && /supabase\.co/.test(CFG.SUPA) && CFG.ANON.indexOf('sb_')===0;
 const LS_KEY='dreamcrm_v1_'+USER.id;
 const STAGE_DEFAULT=[
   {id:'neu',name:'Neue Leads',color:'#64748b',followup:false},
@@ -341,7 +346,7 @@ function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOSt
 /* ============ KI (Mock + Endpoint-Hook) ============ */
 async function aiProxy(type,inputs,localFn){
   try{
-    const r=await fetch(CFG.AI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,inputs,pid:USER.id,ctx:{name:USER.firstName}})});
+    const r=await fetch(CFG.AI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,inputs,pid:USER.id,ctx:{name:USER.firstName,profile:USER.profile}})});
     const j=await r.json().catch(()=>({}));
     if(r.ok&&j.text) return j.text;
     if(j&&j.error) return '⚠️ '+j.error+'\n\n— — — Vorschlag (offline) — — —\n'+localFn();
@@ -438,7 +443,7 @@ function renderFinderBody(v){
   const b=v.querySelector('#fbody');
   if(finderMode==='ki'){
     b.innerHTML=`
-    <div class="field"><label>Branche</label><input id="f_branche" placeholder="z.B. Zahnarzt, Fitness, Handwerk" value="Handwerk"></div>
+    <div class="field"><label>Branche</label><input id="f_branche" placeholder="z.B. Zahnarzt, Fitness, Handwerk" value="${esc((USER.profile&&USER.profile.zielgruppe)||'')}"></div>
     <div class="field"><label>Ort / Region</label><input id="f_ort" placeholder="z.B. München" value="Dortmund"></div>
     <div class="field"><label>Quelle</label>
       <select id="f_quelle"><option value="jobportal">Jobportale scrapen (Buying-Signal)</option><option value="maps">Lokale Suche (Google Maps)</option></select></div>
@@ -756,15 +761,23 @@ function endTour(){document.getElementById('tour').classList.remove('open');stat
 
 /* ============ INIT ============ */
 function renderUser(){const el=document.getElementById('userChip');if(!el)return;
-  if(USER.guest){el.textContent='👤 Demo (Vorschau)';return;}
   const nm=[USER.firstName,USER.lastName].filter(Boolean).join(' ').trim();
   el.textContent='👤 '+(nm||'Eingeloggt');}
+function showGate(){
+  document.documentElement.setAttribute('data-theme','dreamlife');
+  document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:24px">'
+    +'<div style="max-width:460px;text-align:center;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;box-shadow:var(--shadow)">'
+    +'<div style="font-size:42px;margin-bottom:10px">🔒</div>'
+    +'<h1 style="font-family:var(--font-head);font-size:23px;margin-bottom:10px">Kein Zugang</h1>'
+    +'<p style="color:var(--text-soft);font-size:14.5px;line-height:1.65">Bitte öffne DreamCRM direkt in deiner Lernplattform — dort wirst du automatisch eingeloggt. Ein Aufruf ohne Login ist nicht möglich.</p>'
+    +'</div></div>';
+}
 async function init(){
+  if(!USER.id){ showGate(); return; }
   load();
   setTheme(state.settings.theme||'dreamlife');
   renderUser();
   if(CLOUD){ await cloudLoad(); setTheme(state.settings.theme||'dreamlife'); }
-  if(!state.leads.length&&!state.settings.onboarded&&USER.guest)seed();
   document.getElementById('themeSwitch').onclick=e=>{const b=e.target.closest('button');if(b)setTheme(b.dataset.t);};
   document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)setTab(b.dataset.tab);};
   document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal();};
