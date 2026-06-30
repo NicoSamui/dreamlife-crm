@@ -52,6 +52,7 @@ exports.handler = async (event) => {
     const p = buildPrompt(type, inputs, ctx);
     if (!p) return resp(400, { error: 'Unbekannter Generator.' });
     p.system = p.system + VOICE;
+    p.user = profileBlock(ctx) + p.user;
 
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -70,6 +71,18 @@ exports.handler = async (event) => {
 const VOICE = '\n\nSCHREIB-STIL (immer einhalten):\n- Per Du, nahbar und direkt.\n- Kurze Sätze, Klartext, echt statt poliert.\n- Kein Coaching-Bingo, keine Buzzwords, keine Floskeln.\n- NIEMALS Preise, Tarife oder konkrete Kosten nennen — das passiert nur im persönlichen Erstgespräch.';
 
 function v(x, d) { return (x && ('' + x).trim()) ? ('' + x).trim() : (d || '(offen)'); }
+
+function profileBlock(ctx) {
+  const p = (ctx && ctx.profile) || {};
+  const parts = [];
+  if (ctx && ctx.name) parts.push('Teilnehmer: ' + ctx.name);
+  if (p.dienstleistung) parts.push('Seine Dienstleistung/Angebot: ' + p.dienstleistung);
+  if (p.methode) parts.push('Seine Methode/Vorgehen: ' + p.methode);
+  if (p.zielgruppe) parts.push('Seine Zielgruppe/Branche: ' + p.zielgruppe);
+  if (p.angebotssatz) parts.push('Sein Angebotssatz/Positionierung: ' + p.angebotssatz);
+  if (!parts.length) return '';
+  return 'KONTEXT zum Teilnehmer (nutze das, um Nachricht/Antwort konkret auf SEIN Angebot und SEINE Zielgruppe zuzuschneiden — zaehle die Felder nicht woertlich auf):\n' + parts.join('\n') + '\n\n';
+}
 
 function leadBlock(i) {
   return 'Lead: ' + v(i.name) + (i.company ? ' (' + i.company + ')' : '') +
