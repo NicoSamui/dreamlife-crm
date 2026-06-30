@@ -279,6 +279,7 @@ function resolveUser(){
     }};
 }
 const USER=resolveUser();
+const BETA=(function(){try{var q=new URLSearchParams(location.search);if(q.get('beta')==='off'){localStorage.removeItem('dreamcrm_beta');return false;}if(q.get('beta')==='dreamcrm'){localStorage.setItem('dreamcrm_beta','1');return true;}return localStorage.getItem('dreamcrm_beta')==='1';}catch(e){return false;}})();
 const CLOUD=!!USER.id && /supabase\.co/.test(CFG.SUPA) && CFG.ANON.indexOf('sb_')===0;
 const LS_KEY='dreamcrm_v1_'+USER.id;
 const STAGE_DEFAULT=[
@@ -421,14 +422,14 @@ function render(){renderKPIs();const v=document.getElementById('view');
   if(tab==='finden')renderFinden(v);else if(tab==='crm')renderCRM(v);else renderKunden(v);}
 
 /* ============ LEADS FINDEN ============ */
-let finderMode='ki',finderResults=[];
+let finderMode=BETA?'ki':'manuell',finderResults=[];
 function renderFinden(v){
   v.innerHTML=`
   <div style="margin-bottom:16px"><h1>Leads finden</h1><div class="sub">Manuell, per KI-Recherche, als Liste oder Import – und mit einem Klick in die Pipeline.</div></div>
   <div class="finder-grid">
     <div class="panel" style="padding:16px">
       <div class="seg" id="fseg">
-        <button data-m="ki" class="${finderMode==='ki'?'on':''}">🤖 KI-Recherche</button>
+        <button data-m="ki" class="${finderMode==='ki'?'on':''}">🤖 KI-Recherche${BETA?'':' 🔒'}</button>
         <button data-m="manuell" class="${finderMode==='manuell'?'on':''}">✍️ Manuell</button>
         <button data-m="csv" class="${finderMode==='csv'?'on':''}">📄 Import</button>
       </div>
@@ -442,6 +443,7 @@ function renderFinden(v){
 function renderFinderBody(v){
   const b=v.querySelector('#fbody');
   if(finderMode==='ki'){
+    if(!BETA){b.innerHTML='<div class="empty"><div class="big">🚧</div><b style="font-size:15px">Bald verfügbar</b><br><span class="muted" style="font-size:12.5px;line-height:1.6">Die KI-Lead-Suche (Maps + Jobportale) ist gerade im Feinschliff. Nutze solange „Manuell" oder „Import" — wir schalten sie frei, sobald sie startklar ist.</span></div>';return;}
     b.innerHTML=`
     <div class="field"><label>Branche</label><input id="f_branche" placeholder="z.B. Zahnarzt, Fitness, Handwerk" value="${esc((USER.profile&&USER.profile.zielgruppe)||'')}"></div>
     <div class="field"><label>Ort / Region</label><input id="f_ort" placeholder="z.B. München" value="Dortmund"></div>
@@ -762,7 +764,7 @@ function endTour(){document.getElementById('tour').classList.remove('open');stat
 /* ============ INIT ============ */
 function renderUser(){const el=document.getElementById('userChip');if(!el)return;
   const nm=[USER.firstName,USER.lastName].filter(Boolean).join(' ').trim();
-  el.textContent='👤 '+(nm||'Eingeloggt');}
+  el.textContent='👤 '+(nm||'Eingeloggt')+(BETA?'  ·  BETA':'');}
 function showGate(){
   document.documentElement.setAttribute('data-theme','dreamlife');
   document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;padding:24px">'
