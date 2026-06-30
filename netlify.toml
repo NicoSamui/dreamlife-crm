@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+  command = ""
+  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Einbetten in Learning Suite (und andere Seiten) erlauben:
+    Content-Security-Policy = "frame-ancestors *"

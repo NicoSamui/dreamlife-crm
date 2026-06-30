@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dreamlife">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamCRM — Dein Sales-Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --r:14px; --r-sm:9px;
+  --font-ui:'Inter',system-ui,sans-serif;
+  --font-head:'Space Grotesk','Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --sp:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;transition:background .3s,color .3s;overflow-x:hidden}
+
+/* ---------- THEME: DREAMLIFE (futuristisch) ---------- */
+html[data-theme="dreamlife"]{
+  --bg:#eef1fb; --panel:rgba(255,255,255,.72); --panel-2:rgba(255,255,255,.5);
+  --border:rgba(120,110,200,.20); --text:#0d1230; --text-soft:#4a4f70; --muted:#8b90b0;
+  --accent:#6d28d9; --accent-2:#9333ea; --accent-text:#fff;
+  --grad:linear-gradient(120deg,#7c3aed,#db2777 60%,#2563eb);
+  --col-bg:rgba(255,255,255,.42); --card:rgba(255,255,255,.9);
+  --shadow:0 8px 30px rgba(80,60,160,.12); --blur:saturate(160%) blur(14px);
+  --chip:rgba(124,58,237,.10); --chip-text:#6d28d9;
+}
+html[data-theme="dreamlife"] body::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(50% 45% at 12% 8%,rgba(124,58,237,.30),transparent 60%),
+    radial-gradient(45% 40% at 92% 12%,rgba(219,39,119,.24),transparent 60%),
+    radial-gradient(55% 50% at 80% 95%,rgba(37,99,235,.22),transparent 60%),
+    radial-gradient(40% 40% at 5% 90%,rgba(16,185,129,.18),transparent 60%);
+  filter:blur(10px)}
+html[data-theme="dreamlife"] .panel,html[data-theme="dreamlife"] .topbar,
+html[data-theme="dreamlife"] .col,html[data-theme="dreamlife"] .modal-box{backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+html[data-theme="dreamlife"] h1,html[data-theme="dreamlife"] .brand b{font-family:var(--font-head)}
+
+/* ---------- THEME: CLOSE (clean light) ---------- */
+html[data-theme="close"]{
+  --bg:#f1f5f9; --panel:#ffffff; --panel-2:#f8fafc;
+  --border:#e2e8f0; --text:#0f172a; --text-soft:#475569; --muted:#94a3b8;
+  --accent:#2563eb; --accent-2:#1d4ed8; --accent-text:#fff;
+  --grad:#2563eb;
+  --col-bg:#eef2f7; --card:#ffffff;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.08); --blur:none;
+  --chip:#eff6ff; --chip-text:#2563eb; --r:10px; --r-sm:7px;
+}
+
+/* ---------- THEME: DARK (command center) ---------- */
+html[data-theme="dark"]{
+  --bg:#0a0e17; --panel:#121826; --panel-2:#0e1320;
+  --border:#1f2a3d; --text:#e6edf7; --text-soft:#9aa7bd; --muted:#5d6b85;
+  --accent:#22d3ee; --accent-2:#38bdf8; --accent-text:#04121a;
+  --grad:linear-gradient(120deg,#22d3ee,#6366f1);
+  --col-bg:#0e1320; --card:#151c2c;
+  --shadow:0 8px 24px rgba(0,0,0,.45); --blur:none;
+  --chip:rgba(34,211,238,.12); --chip-text:#5eead4;
+}
+
+/* ---------- LAYOUT ---------- */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:12px 22px;background:var(--panel);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.3px}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#fff;font-weight:700;font-family:var(--font-head);box-shadow:0 4px 14px rgba(109,40,217,.35)}
+.brand b{font-size:18px}
+.brand small{color:var(--muted);font-weight:500;font-size:11px;margin-top:2px}
+.kpis{display:flex;gap:10px;margin-left:6px;flex:1;flex-wrap:wrap}
+.kpi{background:var(--panel-2);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:7px 13px;min-width:96px}
+.kpi .v{font-size:18px;font-weight:700;font-family:var(--font-head);line-height:1}
+.kpi .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.kpi.umsatz .v{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.top-actions{display:flex;align-items:center;gap:8px}
+.theme-switch{display:flex;background:var(--panel-2);border:1px solid var(--border);border-radius:20px;padding:3px}
+.theme-switch button{border:0;background:transparent;color:var(--muted);font-size:11.5px;font-weight:600;
+  padding:5px 11px;border-radius:16px;cursor:pointer;font-family:var(--font-ui)}
+.theme-switch button.on{background:var(--accent);color:var(--accent-text)}
+.userchip{font-size:12px;font-weight:600;color:var(--text-soft);background:var(--panel-2);border:1px solid var(--border);padding:6px 11px;border-radius:20px;white-space:nowrap}
+@media(max-width:820px){.userchip{display:none}}
+
+.tabs{display:flex;gap:4px;padding:10px 22px 0;background:transparent}
+.tab{border:0;background:transparent;color:var(--text-soft);font-weight:600;font-size:14px;
+  padding:10px 16px;border-radius:var(--r-sm) var(--r-sm) 0 0;cursor:pointer;position:relative;font-family:var(--font-ui)}
+.tab.on{color:var(--accent)}
+.tab.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;border-radius:3px;background:var(--grad)}
+.tab .badge{display:inline-block;min-width:18px;text-align:center;background:var(--accent);color:var(--accent-text);
+  font-size:10.5px;padding:1px 5px;border-radius:10px;margin-left:6px;vertical-align:middle}
+
+.wrap{padding:20px 22px 60px;max-width:1500px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+h1{font-size:20px;letter-spacing:-.4px}
+.sub{color:var(--text-soft);font-size:13.5px;margin-top:3px}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.btn{border:0;border-radius:var(--r-sm);padding:9px 15px;font-weight:600;font-size:13.5px;cursor:pointer;
+  font-family:var(--font-ui);display:inline-flex;align-items:center;gap:7px;transition:transform .05s,filter .15s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);color:var(--accent-text)}
+.btn.grad{background:var(--grad);color:#fff}
+.btn.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--border)}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+.btn:hover{filter:brightness(1.05)}
+.btn.danger{background:transparent;color:#ef4444;border:1px solid var(--border)}
+input,select,textarea{font-family:var(--font-ui);font-size:13.5px;color:var(--text);
+  background:var(--panel-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+label{font-size:12px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:5px}
+.field{margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--chip);color:var(--chip-text);
+  font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.muted{color:var(--muted)}
+
+/* ---------- LEADS FINDEN ---------- */
+.finder-grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+.seg{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.seg button{flex:1;border:1px solid var(--border);background:var(--panel-2);color:var(--text-soft);
+  font-weight:600;font-size:12.5px;padding:9px;border-radius:var(--r-sm);cursor:pointer;min-width:80px}
+.seg button.on{background:var(--accent);color:var(--accent-text);border-color:transparent}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;
+  padding:9px 10px;border-bottom:1px solid var(--border)}
+td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.score{font-family:var(--font-mono);font-weight:700;font-size:13px;padding:2px 8px;border-radius:7px;display:inline-block}
+.score.hi{background:rgba(16,185,129,.15);color:#059669}
+.score.mid{background:rgba(245,158,11,.16);color:#d97706}
+.score.lo{background:rgba(239,68,68,.14);color:#dc2626}
+.src{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--panel-2);border:1px solid var(--border);color:var(--text-soft)}
+.empty{text-align:center;color:var(--muted);padding:48px 20px}
+.empty .big{font-size:40px;margin-bottom:8px}
+
+/* ---------- KANBAN ---------- */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:285px;gap:14px;overflow-x:auto;padding-bottom:14px}
+.col{background:var(--col-bg);border:1px solid var(--border);border-radius:var(--r);padding:10px;min-height:360px;display:flex;flex-direction:column}
+.col.drag{outline:2px dashed var(--accent);outline-offset:-3px}
+.col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;padding:2px 4px}
+.col-head .name{font-weight:700;font-size:13.5px;font-family:var(--font-head);display:flex;align-items:center;gap:7px}
+.col-head .dot{width:9px;height:9px;border-radius:50%}
+.col-head .cnt{font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1px 7px}
+.col-sum{font-size:10.5px;color:var(--muted);font-family:var(--font-mono);margin-bottom:8px;padding:0 4px}
+.cards{display:flex;flex-direction:column;gap:9px;flex:1}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:11px;cursor:grab;
+  box-shadow:var(--shadow);transition:transform .08s,box-shadow .15s}
+.card:hover{transform:translateY(-2px)}
+.card.dragging{opacity:.45}
+.card .nm{font-weight:700;font-size:13.5px;letter-spacing:-.2px}
+.card .co{font-size:12px;color:var(--text-soft);margin-top:1px}
+.card .meta{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
+.card .deal{font-family:var(--font-mono);font-weight:700;font-size:12px;color:var(--accent)}
+.fu{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;display:inline-flex;gap:4px;align-items:center}
+.fu.due{background:rgba(239,68,68,.14);color:#dc2626}
+.fu.soon{background:rgba(245,158,11,.16);color:#d97706}
+.fu.ok{background:var(--chip);color:var(--chip-text)}
+.card .nextstep{font-size:11.5px;color:var(--text-soft);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.add-card{border:1px dashed var(--border);background:transparent;color:var(--muted);border-radius:var(--r-sm);
+  padding:9px;font-weight:600;font-size:12.5px;cursor:pointer;width:100%;margin-top:8px}
+.add-card:hover{color:var(--accent);border-color:var(--accent)}
+.board-tools{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.search{max-width:240px}
+
+/* ---------- KUNDEN ---------- */
+.cust-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cust{padding:15px}
+.cust .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.cust .rev{font-family:var(--font-mono);font-weight:700;font-size:17px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.status-pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.status-pill.aktiv{background:rgba(16,185,129,.15);color:#059669}
+.status-pill.pausiert{background:rgba(245,158,11,.16);color:#d97706}
+.status-pill.beendet{background:rgba(148,163,184,.18);color:#64748b}
+.cust .line{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-soft);margin-top:8px}
+
+/* ---------- MODAL ---------- */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(10,14,23,.5);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.modal.open{display:flex}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 30px 80px rgba(0,0,0,.4);
+  width:100%;max-width:680px;max-height:90vh;overflow:auto}
+.modal-box.wide{max-width:560px}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:2}
+.mh h2{font-size:18px;font-family:var(--font-head);letter-spacing:-.3px}
+.mb{padding:18px 20px}
+.x{border:0;background:var(--panel-2);width:30px;height:30px;border-radius:8px;cursor:pointer;color:var(--text);font-size:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tl{list-style:none;margin:4px 0}
+.tl li{position:relative;padding:0 0 14px 20px;border-left:2px solid var(--border);margin-left:5px}
+.tl li::before{content:"";position:absolute;left:-6px;top:2px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tl .t{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.tl .txt{font-size:13px;margin-top:2px}
+.task{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.task input[type=checkbox]{width:auto}
+.task.done .lbl{text-decoration:line-through;color:var(--muted)}
+.task .due{margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.section-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:18px 0 8px}
+.ai-box{background:var(--panel-2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:13px;line-height:1.55;white-space:pre-wrap;margin-top:8px}
+.ai-row{display:flex;gap:7px;flex-wrap:wrap}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- TOUR ---------- */
+.tour{position:fixed;inset:0;z-index:90;background:rgba(10,14,23,.62);display:none;align-items:center;justify-content:center;padding:20px}
+.tour.open{display:flex}
+.tour-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);max-width:440px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.45);text-align:center}
+.tour-box .ic{font-size:42px;margin-bottom:10px}
+.tour-box h3{font-family:var(--font-head);font-size:21px;margin-bottom:8px}
+.tour-box p{color:var(--text-soft);font-size:14px;line-height:1.6}
+.dots{display:flex;gap:6px;justify-content:center;margin:18px 0}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.dots i.on{background:var(--accent);width:22px;border-radius:6px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);
+  padding:11px 18px;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;z-index:120;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+@media(max-width:820px){
+  .finder-grid{grid-template-columns:1fr}
+  .kpis{order:3;width:100%}
+  .topbar{flex-wrap:wrap}
+  .wrap{padding:16px 14px 60px}
+  .two{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">D</div>
+    <div><b>DreamCRM</b><br><small>Dein Sales-Cockpit</small></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="top-actions">
+    <span class="userchip" id="userChip"></span>
+    <div class="theme-switch" id="themeSwitch">
+      <button data-t="dreamlife">DreamLife</button>
+      <button data-t="close">Close</button>
+      <button data-t="dark">Dark</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab on" data-tab="finden">🔎 Leads Finden</button>
+  <button class="tab" data-tab="crm">📋 CRM <span class="badge" id="dueBadge" style="display:none"></span></button>
+  <button class="tab" data-tab="kunden">🏆 Kunden</button>
+</div>
+
+<div class="wrap" id="view"></div>
+
+<!-- Card / Lead detail modal -->
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+<!-- Small modal (forms) -->
+<div class="modal" id="smodal"><div class="modal-box wide" id="smodalBox"></div></div>
+
+<!-- Onboarding tour -->
+<div class="tour" id="tour"><div class="tour-box" id="tourBox"></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATEN ============ */
+const CFG={SUPA:'https://pkugrquuudreqkwletyv.supabase.co',ANON:'sb_publishable_h9GbkdiHyn8G4S3aoyVjpg_RafiGTS9',AI:'/.netlify/functions/ai'};
+/* LearningSuite ersetzt diese Platzhalter beim eingeloggten Mitglied automatisch. */
+const PLATFORM={id:"{{system.user.id}}",firstName:"{{system.user.firstName}}",lastName:"{{system.user.lastName}}"};
+function _v(x){return (x && (''+x).indexOf('{{')<0)?(''+x):'';}
+function resolveUser(){
+  const q=new URLSearchParams(location.search);
+  let id=q.get('uid')||_v(PLATFORM.id);
+  let fn=q.get('name')||_v(PLATFORM.firstName);
+  let ln=q.get('last')||_v(PLATFORM.lastName);
+  if(!id) return {id:'demo-guest',firstName:fn||'Demo',lastName:ln||'',guest:true};
+  return {id:id,firstName:fn,lastName:ln,guest:false};
+}
+const USER=resolveUser();
+const CLOUD=!USER.guest && /supabase\.co/.test(CFG.SUPA) && CFG.ANON.indexOf('sb_')===0;
+const LS_KEY='dreamcrm_v1_'+USER.id;
+const STAGE_DEFAULT=[
+  {id:'neu',name:'Neue Leads',color:'#64748b',followup:false},
+  {id:'erstkontakt',name:'Erstkontakt',color:'#3b82f6',followup:true},
+  {id:'setting',name:'Setting',color:'#8b5cf6',followup:true},
+  {id:'closing',name:'Closing',color:'#ec4899',followup:true},
+  {id:'kunde',name:'Kunde',color:'#10b981',followup:false}
+];
+let state={leads:[],settings:{theme:'dreamlife',onboarded:false,stages:null,aiEndpoint:''}};
+
+function load(){try{const r=JSON.parse(localStorage.getItem(LS_KEY));if(r){state=r;}}catch(e){}
+  if(!state.settings)state.settings={};
+  if(!state.settings.theme)state.settings.theme='dreamlife';
+  if(!state.settings.stages)state.settings.stages=JSON.parse(JSON.stringify(STAGE_DEFAULT));
+  if(!Array.isArray(state.leads))state.leads=[];}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(state));cloudFlush();}
+let _flush;
+function cloudFlush(){ if(!CLOUD) return; clearTimeout(_flush); _flush=setTimeout(async()=>{ try{
+  const h={apikey:CFG.ANON,Authorization:'Bearer '+CFG.ANON,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'};
+  if(state.leads.length){ const rows=state.leads.map(l=>({id:l.id,user_id:USER.id,stage:l.stage,data:l,updated_at:new Date().toISOString()}));
+    await fetch(CFG.SUPA+'/rest/v1/crm_leads?on_conflict=id',{method:'POST',headers:h,body:JSON.stringify(rows)}); }
+  await fetch(CFG.SUPA+'/rest/v1/crm_settings?on_conflict=user_id',{method:'POST',headers:h,body:JSON.stringify({user_id:USER.id,data:state.settings,updated_at:new Date().toISOString()})});
+ }catch(e){} },700); }
+async function cloudLoad(){ if(!CLOUD) return false; try{
+  const h={apikey:CFG.ANON,Authorization:'Bearer '+CFG.ANON};
+  const lr=await fetch(CFG.SUPA+'/rest/v1/crm_leads?user_id=eq.'+encodeURIComponent(USER.id)+'&select=data',{headers:h});
+  if(lr.ok){ const rows=await lr.json(); if(Array.isArray(rows)&&rows.length) state.leads=rows.map(r=>r.data).filter(Boolean); }
+  const sr=await fetch(CFG.SUPA+'/rest/v1/crm_settings?user_id=eq.'+encodeURIComponent(USER.id)+'&select=data',{headers:h});
+  if(sr.ok){ const rows=await sr.json(); if(rows[0]&&rows[0].data) state.settings=Object.assign(state.settings,rows[0].data); }
+  return true;
+ }catch(e){ return false; } }
+async function cloudDelete(id){ if(!CLOUD) return; try{
+  await fetch(CFG.SUPA+'/rest/v1/crm_leads?id=eq.'+encodeURIComponent(id)+'&user_id=eq.'+encodeURIComponent(USER.id),{method:'DELETE',headers:{apikey:CFG.ANON,Authorization:'Bearer '+CFG.ANON}});
+ }catch(e){} }
+const stages=()=>state.settings.stages;
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>new Date().toISOString().slice(0,10);
+function esc(s){return(s==null?'':''+s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){n=Number(n)||0;return n.toLocaleString('de-DE')+' €';}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._);t._=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ============ DEMO-DATEN ============ */
+function seed(){
+  const mk=(o)=>Object.assign({id:uid(),contact:'',industry:'',location:'',note:'',nextStep:'',score:80,hook:'',dealValue:0,followUpDate:'',activities:[],tasks:[],status:'aktiv',source:'manuell',createdAt:today()},o);
+  state.leads=[
+    mk({name:'Dr. Berger',company:'Zahnarztpraxis Berger',contact:'@praxis_berger',industry:'Zahnarzt',location:'München',source:'maps',stage:'neu',score:88,hook:'Praxis sucht laut Website seit Wochen Verstärkung – perfektes Recruiting-Signal.',dealValue:3500,nextStep:'Erste DM schreiben'}),
+    mk({name:'Sandra Pohl',company:'Fitnessstudio FlexFit',contact:'@flexfit.koeln',industry:'Fitness',location:'Köln',source:'jobportal',stage:'erstkontakt',score:82,hook:'Sucht aktuell 2 Trainer auf Indeed – brauchen Bewerber, nicht nur Stellenanzeigen.',dealValue:3500,followUpDate:today(),nextStep:'Follow-up: auf erste Nachricht nachfassen',
+      activities:[{date:today(),type:'DM',text:'Erste Nachricht über Instagram geschickt.'}],
+      tasks:[{id:uid(),text:'Nachfassen wenn keine Antwort',due:today(),done:false}]}),
+    mk({name:'Marco Lentz',company:'Lentz Bedachungen',contact:'0151 2233445',industry:'Handwerk',location:'Dortmund',source:'jobportal',stage:'setting',score:79,hook:'Dachdecker mit 3 offenen Stellen – akuter Personalmangel.',dealValue:4500,followUpDate:addDays(2),nextStep:'Termin für Erstgespräch bestätigen',
+      activities:[{date:addDays(-3),type:'DM',text:'Kontakt aufgebaut.'},{date:addDays(-1),type:'Call',text:'Kurzes Telefonat – Interesse da.'}],
+      tasks:[{id:uid(),text:'Zoom-Link für Setting-Call senden',due:addDays(2),done:false}]}),
+    mk({name:'Julia Brandt',company:'Kosmetik Brandt',contact:'@kosmetik.brandt',industry:'Beauty',location:'Hamburg',source:'maps',stage:'closing',score:91,hook:'Volle Auftragsbücher, will skalieren – idealer Closing-Kandidat.',dealValue:5000,followUpDate:today(),nextStep:'Angebot nachfassen, Einwand "Preis" lösen',
+      activities:[{date:addDays(-5),type:'Call',text:'Erstgespräch gelaufen, sehr offen.'},{date:addDays(-2),type:'Angebot',text:'Premium-Angebot geschickt.'}],
+      tasks:[{id:uid(),text:'Closing-Call vorbereiten',due:today(),done:false}]}),
+    mk({name:'Thomas Krüger',company:'Krüger Immobilien',contact:'@krueger.immo',industry:'Immobilien',location:'Berlin',source:'empfehlung',stage:'kunde',score:95,hook:'Empfehlung von Bestandskunde.',dealValue:5000,status:'aktiv',nextStep:'Onboarding läuft',
+      activities:[{date:addDays(-14),type:'Closing',text:'Premium-Paket abgeschlossen – 5.000 €.'}]}),
+    mk({name:'Nina Vogt',company:'Vogt Coaching',contact:'@nina.vogt',industry:'Coaching',location:'Wien',source:'maps',stage:'kunde',score:90,hook:'Wollte dringend mehr Reichweite.',dealValue:3500,status:'aktiv',nextStep:'Upsell auf VIP prüfen'})
+  ];
+  save();
+}
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+
+/* ============ KI (Mock + Endpoint-Hook) ============ */
+async function aiProxy(type,inputs,localFn){
+  try{
+    const r=await fetch(CFG.AI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,inputs,pid:USER.id,ctx:{name:USER.firstName}})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.text) return j.text;
+    if(j&&j.error) return '⚠️ '+j.error+'\n\n— — — Vorschlag (offline) — — —\n'+localFn();
+  }catch(e){}
+  return localFn();
+}
+function leadInputs(l){return {name:l.name,company:l.company,stage:stageName(l.stage),source:l.source,industry:l.industry,location:l.location,hook:l.hook,note:l.nextStep||l.note};}
+const VN=['Lukas','Sarah','Mehmet','Anna','Tobias','Lena','David','Carolin','Jan','Miriam','Felix','Pia'];
+const COSUF={Zahnarzt:['Zahnarztpraxis','Dental-Zentrum','Kieferorthopädie'],Fitness:['Fitnessstudio','Gym','EMS-Studio'],Handwerk:['Bedachungen','Elektro','Sanitär & Heizung','Tischlerei'],Beauty:['Kosmetikstudio','Beauty Lounge','Nagelstudio'],Gastronomie:['Restaurant','Café','Bistro'],Immobilien:['Immobilien','Hausverwaltung'],Coaching:['Coaching','Akademie','Consulting'],Pflege:['Pflegedienst','Seniorenresidenz','Tagespflege']};
+function genLeads(branche,ort,quelle,n){
+  const sufs=COSUF[branche]||['GmbH','Studio','Zentrum',branche];
+  const out=[];
+  for(let i=0;i<n;i++){
+    const ln=['Berger','Wagner','Hoffmann','Schmitt','Yilmaz','Bauer','Krause','Lehmann','Frank','Roth'][Math.floor(Math.random()*10)];
+    const suf=sufs[Math.floor(Math.random()*sufs.length)];
+    const company=suf+' '+ln;
+    const score=60+Math.floor(Math.random()*36);
+    let hook;
+    if(quelle==='jobportal'){const roles={Zahnarzt:'ZFA',Fitness:'Trainer',Handwerk:'Monteur',Beauty:'Kosmetiker/in',Gastronomie:'Servicekraft',Immobilien:'Makler',Coaching:'Setter',Pflege:'Pflegefachkraft'}[branche]||'Mitarbeiter';
+      hook='Sucht aktuell '+(1+Math.floor(Math.random()*3))+'x '+roles+' – akuter Personalmangel = warmes Recruiting-Signal.';}
+    else hook='Lokal in '+ort+', solide Bewertungen, aber dünne Social-Media-Präsenz – Luft nach oben bei Reichweite.';
+    out.push({id:uid(),name:VN[Math.floor(Math.random()*VN.length)]+' '+ln,company,contact:'@'+company.toLowerCase().replace(/[^a-z]/g,'').slice(0,14),industry:branche,location:ort,source:quelle,score,hook});
+  }
+  return out.sort((a,b)=>b.score-a.score);
+}
+function aiDM(l){
+  const st=l.stage;
+  const vn=(l.name||'').split(' ')[0]||'';
+  if(st==='closing'||st==='setting')return`Hey ${vn}, kurzes Update zu unserem Gespräch:\n\nIch hab mir ${l.company} nochmal angeschaut. Genau das, was wir besprochen haben, lässt sich bei euch schnell umsetzen. Wann passt dir diese Woche ein kurzer Call – Dienstag oder Donnerstag?`;
+  return`Hey ${vn}, ich bin über ${l.source==='jobportal'?'eure Stellenanzeige':'euer Profil'} auf ${l.company} gestoßen.\n\n${l.hook||''}\n\nIch helfe ${l.industry||'Firmen wie euch'} dabei, genau das zu lösen. Offen für einen kurzen Austausch?`;
+}
+function aiNext(l){
+  const m={neu:'Schreib die erste DM – Aufhänger steht schon. Ziel: Antwort bekommen, nicht verkaufen.',
+    erstkontakt:'Bring das Gespräch auf ein konkretes Problem. Stell 1 gute Frage und setz ein Setting-Gespräch auf.',
+    setting:'Qualifiziere Budget & Dringlichkeit, dann fix einen Closing-Termin mit klarem Datum.',
+    closing:'Hol die Entscheidung. Adressiere den Haupteinwand direkt und mach ein klares Angebot.',
+    kunde:'Onboarding sauber starten und nach 2 Wochen Upsell/Empfehlung ansprechen.'}[l.stage];
+  return'➡️ '+m;
+}
+function aiObjection(l,type){
+  const o={preis:`"Zu teuer" heißt fast immer: der Wert ist noch nicht klar.\n\nAntwort: "Verstehe ich. Lass uns kurz rechnen – wenn dir das pro Monat X Anfragen bringt, was ist dir ein Kunde wert? Dann reden wir nicht über Kosten, sondern über Rendite."`,
+    zeit:`"Keine Zeit" heißt meist: keine Priorität.\n\nAntwort: "Genau deshalb macht es Sinn. Du steckst gerade so tief drin, weil dir Struktur fehlt. Genau das nehmen wir dir ab – du musst nichts selbst bauen."`,
+    ueberlegen:`"Ich muss überlegen" heißt: ein Punkt ist offen.\n\nAntwort: "Total fair. Was genau willst du noch durchdenken – das Ergebnis, das Investment oder der Zeitpunkt? Dann klären wir genau das jetzt."`}[type];
+  return o;
+}
+
+/* ============ RENDER: KPIs ============ */
+function kpiVals(){
+  const inPipe=state.leads.filter(l=>l.stage!=='kunde');
+  const termine=state.leads.filter(l=>l.stage==='setting'||l.stage==='closing').length;
+  const kunden=state.leads.filter(l=>l.stage==='kunde');
+  const umsatz=kunden.filter(k=>k.status!=='beendet').reduce((s,k)=>s+(Number(k.dealValue)||0),0);
+  return{leads:inPipe.length,termine,closings:kunden.length,umsatz};
+}
+function renderKPIs(){
+  const k=kpiVals();
+  document.getElementById('kpis').innerHTML=
+   `<div class="kpi"><div class="v">${k.leads}</div><div class="l">Leads</div></div>
+    <div class="kpi"><div class="v">${k.termine}</div><div class="l">Termine</div></div>
+    <div class="kpi"><div class="v">${k.closings}</div><div class="l">Closings</div></div>
+    <div class="kpi umsatz"><div class="v">${money(k.umsatz)}</div><div class="l">Umsatz</div></div>`;
+  const due=dueLeads().length;
+  const b=document.getElementById('dueBadge');
+  if(due){b.style.display='inline-block';b.textContent=due;}else b.style.display='none';
+}
+function dueLeads(){const t=today();return state.leads.filter(l=>l.stage!=='kunde'&&((l.followUpDate&&l.followUpDate<=t)||(l.tasks||[]).some(tk=>!tk.done&&tk.due&&tk.due<=t)));}
+
+/* ============ TABS ============ */
+let tab='finden';
+function setTab(t){tab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));render();}
+function render(){renderKPIs();const v=document.getElementById('view');
+  if(tab==='finden')renderFinden(v);else if(tab==='crm')renderCRM(v);else renderKunden(v);}
+
+/* ============ LEADS FINDEN ============ */
+let finderMode='ki',finderResults=[];
+function renderFinden(v){
+  v.innerHTML=`
+  <div style="margin-bottom:16px"><h1>Leads finden</h1><div class="sub">Manuell, per KI-Recherche, als Liste oder Import – und mit einem Klick in die Pipeline.</div></div>
+  <div class="finder-grid">
+    <div class="panel" style="padding:16px">
+      <div class="seg" id="fseg">
+        <button data-m="ki" class="${finderMode==='ki'?'on':''}">🤖 KI-Recherche</button>
+        <button data-m="manuell" class="${finderMode==='manuell'?'on':''}">✍️ Manuell</button>
+        <button data-m="csv" class="${finderMode==='csv'?'on':''}">📄 Import</button>
+      </div>
+      <div id="fbody"></div>
+    </div>
+    <div class="panel" style="padding:16px;min-height:300px"><div id="fresults"></div></div>
+  </div>`;
+  v.querySelector('#fseg').onclick=e=>{const b=e.target.closest('button');if(!b)return;finderMode=b.dataset.m;renderFinden(v);};
+  renderFinderBody(v);renderResults(v);
+}
+function renderFinderBody(v){
+  const b=v.querySelector('#fbody');
+  if(finderMode==='ki'){
+    b.innerHTML=`
+    <div class="field"><label>Branche</label><input id="f_branche" placeholder="z.B. Zahnarzt, Fitness, Handwerk" value="Handwerk"></div>
+    <div class="field"><label>Ort / Region</label><input id="f_ort" placeholder="z.B. München" value="Dortmund"></div>
+    <div class="field"><label>Quelle</label>
+      <select id="f_quelle"><option value="jobportal">Jobportale scrapen (Buying-Signal)</option><option value="maps">Lokale Suche (Google Maps)</option></select></div>
+    <div class="field"><label>Anzahl Leads</label><input id="f_n" type="number" value="6" min="1" max="25"></div>
+    <button class="btn grad" style="width:100%" id="f_go">⚡ Leads generieren</button>
+    <p class="muted" style="font-size:11.5px;margin-top:10px;line-height:1.5">Demo erzeugt realistische Beispiel-Leads mit Score + Aufhänger. Für echtes Live-Scraping wird später Apify verbunden.</p>`;
+    b.querySelector('#f_go').onclick=()=>{
+      const br=b.querySelector('#f_branche').value.trim()||'Branche';
+      const ort=b.querySelector('#f_ort').value.trim()||'Ort';
+      const q=b.querySelector('#f_quelle').value;
+      const n=Math.min(25,Math.max(1,+b.querySelector('#f_n').value||6));
+      const go=b.querySelector('#f_go');go.innerHTML='<span class="spin"></span> Recherchiere…';
+      setTimeout(()=>{finderResults=genLeads(br,ort,q,n);renderResults(v);go.innerHTML='⚡ Leads generieren';toast(n+' Leads gefunden');},700);
+    };
+  }else if(finderMode==='manuell'){
+    b.innerHTML=`
+    <div class="field"><label>Name *</label><input id="m_name" placeholder="Ansprechpartner"></div>
+    <div class="field"><label>Firma</label><input id="m_co" placeholder="Firmenname"></div>
+    <div class="field"><label>Kontakt</label><input id="m_contact" placeholder="@instagram / Mail / Telefon"></div>
+    <div class="two"><div class="field"><label>Branche</label><input id="m_ind" placeholder="z.B. Fitness"></div>
+      <div class="field"><label>Ort</label><input id="m_loc" placeholder="z.B. Köln"></div></div>
+    <div class="field"><label>Quelle</label><select id="m_src"><option value="manuell">Manuell</option><option value="empfehlung">Empfehlung</option><option value="maps">Maps</option><option value="jobportal">Jobportal</option></select></div>
+    <div class="field"><label>Notiz / nächster Schritt</label><textarea id="m_note" rows="2" placeholder="Worum geht's, was ist der nächste Schritt?"></textarea></div>
+    <button class="btn grad" style="width:100%" id="m_go">➕ Lead in Pipeline anlegen</button>`;
+    b.querySelector('#m_go').onclick=()=>{
+      const name=b.querySelector('#m_name').value.trim();if(!name){toast('Name fehlt');return;}
+      addLead({name,company:b.querySelector('#m_co').value.trim(),contact:b.querySelector('#m_contact').value.trim(),
+        industry:b.querySelector('#m_ind').value.trim(),location:b.querySelector('#m_loc').value.trim(),
+        source:b.querySelector('#m_src').value,note:b.querySelector('#m_note').value.trim(),nextStep:b.querySelector('#m_note').value.trim(),stage:'neu',score:75});
+      toast('Lead angelegt');renderFinden(document.getElementById('view'));
+    };
+  }else{
+    b.innerHTML=`
+    <div class="field"><label>CSV importieren</label>
+      <input type="file" id="csvfile" accept=".csv"></div>
+    <p class="muted" style="font-size:12px;line-height:1.6">Spalten (1. Zeile als Header): <b>name, firma, kontakt, branche, ort, quelle, notiz</b>. Nur <b>name</b> ist Pflicht.</p>
+    <button class="btn ghost sm" id="csvdemo" style="margin-top:8px">Beispiel-CSV herunterladen</button>
+    <hr style="border:0;border-top:1px solid var(--border);margin:16px 0">
+    <button class="btn ghost" style="width:100%" id="exportbtn">⬇️ Alle Leads als CSV exportieren</button>`;
+    b.querySelector('#csvfile').onchange=importCSV;
+    b.querySelector('#csvdemo').onclick=()=>downloadCSV('name,firma,kontakt,branche,ort,quelle,notiz\nMax Muster,Muster GmbH,@muster,Fitness,Berlin,maps,Erstkontakt offen\n','beispiel-leads.csv');
+    b.querySelector('#exportbtn').onclick=exportLeads;
+  }
+}
+function renderResults(v){
+  const r=(v||document).querySelector('#fresults');if(!r)return;
+  if(finderMode==='csv'){r.innerHTML=`<div class="empty"><div class="big">📄</div>Importiere eine CSV oder exportiere deine Leads links.</div>`;return;}
+  if(!finderResults.length){r.innerHTML=`<div class="empty"><div class="big">🔎</div>Noch keine Ergebnisse.<br>Starte links eine KI-Recherche.</div>`;return;}
+  r.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <b style="font-size:14px">${finderResults.length} gefundene Leads</b>
+      <button class="btn primary sm" id="addAll">Alle in Pipeline</button></div>
+    <div style="overflow:auto"><table><thead><tr><th>Score</th><th>Lead</th><th>Quelle</th><th>Aufhänger</th><th></th></tr></thead><tbody>
+    ${finderResults.map(l=>`<tr>
+      <td><span class="score ${l.score>=80?'hi':l.score>=70?'mid':'lo'}">${l.score}</span></td>
+      <td><b>${esc(l.name)}</b><br><span class="muted" style="font-size:12px">${esc(l.company)} · ${esc(l.location)}</span><br><span style="font-size:12px">${esc(l.contact)}</span></td>
+      <td><span class="src">${esc(l.source)}</span></td>
+      <td style="max-width:280px;font-size:12.5px">${esc(l.hook)}</td>
+      <td><button class="btn ghost sm" data-add="${l.id}">+ Pipeline</button></td></tr>`).join('')}
+    </tbody></table></div>`;
+  r.querySelector('#addAll').onclick=()=>{finderResults.forEach(l=>addLead(Object.assign({},l,{stage:'neu',nextStep:'Erste DM schreiben'})));toast(finderResults.length+' Leads übernommen');finderResults=[];setTab('crm');};
+  r.querySelectorAll('[data-add]').forEach(btn=>btn.onclick=()=>{const l=finderResults.find(x=>x.id===btn.dataset.add);addLead(Object.assign({},l,{stage:'neu',nextStep:'Erste DM schreiben'}));finderResults=finderResults.filter(x=>x.id!==btn.dataset.add);renderResults(v);toast('In Pipeline übernommen');});
+}
+function addLead(o){state.leads.push(Object.assign({id:uid(),contact:'',industry:'',location:'',note:'',nextStep:'',score:75,hook:'',dealValue:0,followUpDate:'',activities:[],tasks:[],status:'aktiv',source:'manuell',stage:'neu',createdAt:today()},o,{id:uid()}));save();renderKPIs();}
+
+/* ============ CSV ============ */
+function importCSV(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const rows=parseCSV(rd.result);const head=rows.shift().map(h=>h.trim().toLowerCase());
+    let c=0;rows.forEach(r=>{if(!r.length||!r.join('').trim())return;const g=k=>{const i=head.indexOf(k);return i>=0?(r[i]||'').trim():'';};
+      const name=g('name');if(!name)return;
+      addLead({name,company:g('firma'),contact:g('kontakt'),industry:g('branche'),location:g('ort'),source:g('quelle')||'csv',note:g('notiz'),nextStep:g('notiz'),stage:'neu',score:72});c++;});
+    toast(c+' Leads importiert');setTab('crm');}catch(err){toast('CSV konnte nicht gelesen werden');}};
+  rd.readAsText(f);}
+function parseCSV(t){const rows=[];let row=[],cur='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+  else{if(c==='"')q=true;else if(c===','){row.push(cur);cur='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(cur);rows.push(row);row=[];cur='';}else cur+=c;}}
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}return rows;}
+function exportLeads(){const cols=['name','firma','kontakt','branche','ort','quelle','stage','dealValue','followUpDate','notiz'];
+  const lines=[cols.join(',')];state.leads.forEach(l=>{const v=[l.name,l.company,l.contact,l.industry,l.location,l.source,stageName(l.stage),l.dealValue,l.followUpDate,(l.nextStep||l.note||'').replace(/\n/g,' ')];
+    lines.push(v.map(x=>{x=(x==null?'':''+x);return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;}).join(','));});
+  downloadCSV(lines.join('\n'),'dreamcrm-leads.csv');toast('Export erstellt');}
+function downloadCSV(txt,fn){const b=new Blob([txt],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);}
+
+/* ============ CRM / KANBAN ============ */
+let search='',showDueOnly=false;
+function stageName(id){const s=stages().find(x=>x.id===id);return s?s.name:id;}
+function renderCRM(v){
+  const due=dueLeads().length;
+  v.innerHTML=`
+  <div class="board-tools">
+    <h1 style="margin-right:auto">Pipeline</h1>
+    <input class="search" id="search" placeholder="🔍 Lead oder Firma…" value="${esc(search)}">
+    <button class="btn ${showDueOnly?'primary':'ghost'} sm" id="dueBtn">🔔 Heute fällig${due?' ('+due+')':''}</button>
+    <button class="btn ghost sm" id="editStages">⚙️ Spalten</button>
+  </div>
+  <div class="board" id="board"></div>`;
+  v.querySelector('#search').oninput=e=>{search=e.target.value;drawBoard();};
+  v.querySelector('#dueBtn').onclick=()=>{showDueOnly=!showDueOnly;renderCRM(v);};
+  v.querySelector('#editStages').onclick=editStages;
+  drawBoard();
+}
+function leadMatch(l){if(search){const s=search.toLowerCase();if(!((l.name||'').toLowerCase().includes(s)||(l.company||'').toLowerCase().includes(s)))return false;}
+  if(showDueOnly){const t=today();const d=(l.followUpDate&&l.followUpDate<=t)||(l.tasks||[]).some(tk=>!tk.done&&tk.due&&tk.due<=t);if(!d)return false;}return true;}
+function drawBoard(){
+  const board=document.getElementById('board');if(!board)return;
+  board.innerHTML=stages().map(st=>{
+    const items=state.leads.filter(l=>l.stage===st.id&&leadMatch(l));
+    const sum=items.reduce((s,l)=>s+(Number(l.dealValue)||0),0);
+    return `<div class="col" data-stage="${st.id}">
+      <div class="col-head"><div class="name"><span class="dot" style="background:${st.color}"></span>${esc(st.name)}</div><span class="cnt">${items.length}</span></div>
+      ${sum?`<div class="col-sum">Σ ${money(sum)}</div>`:'<div class="col-sum">&nbsp;</div>'}
+      <div class="cards" data-stage="${st.id}">${items.map(cardHTML).join('')}</div>
+      ${st.id==='neu'?`<button class="add-card" data-add="1">+ Lead hinzufügen</button>`:''}
+    </div>`;
+  }).join('');
+  // events
+  board.querySelectorAll('.card').forEach(c=>{
+    c.setAttribute('draggable','true');
+    c.addEventListener('dragstart',e=>{e.dataTransfer.setData('id',c.dataset.id);c.classList.add('dragging');});
+    c.addEventListener('dragend',()=>c.classList.remove('dragging'));
+    c.addEventListener('click',()=>openLead(c.dataset.id));
+  });
+  board.querySelectorAll('.col').forEach(col=>{
+    col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag');});
+    col.addEventListener('dragleave',()=>col.classList.remove('drag'));
+    col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('drag');const id=e.dataTransfer.getData('id');moveLead(id,col.dataset.stage);});
+  });
+  const ac=board.querySelector('[data-add]');if(ac)ac.onclick=()=>quickAdd();
+}
+function cardHTML(l){
+  let fu='';
+  if(l.followUpDate&&l.stage!=='kunde'){const t=today();const cls=l.followUpDate<t?'due':l.followUpDate===t?'due':l.followUpDate<=addDays(2)?'soon':'ok';
+    fu=`<span class="fu ${cls}">🔔 ${fmtDate(l.followUpDate)}</span>`;}
+  const openTasks=(l.tasks||[]).filter(t=>!t.done).length;
+  return `<div class="card" data-id="${l.id}">
+    <div class="nm">${esc(l.name)}</div>
+    ${l.company?`<div class="co">${esc(l.company)}${l.location?' · '+esc(l.location):''}</div>`:''}
+    <div class="meta">
+      ${l.dealValue?`<span class="deal">${money(l.dealValue)}</span>`:''}
+      <span class="src">${esc(l.source||'')}</span>
+      ${fu}
+      ${openTasks?`<span class="chip">✓ ${openTasks}</span>`:''}
+    </div>
+    ${l.nextStep?`<div class="nextstep">➡️ ${esc(l.nextStep)}</div>`:''}
+  </div>`;
+}
+function fmtDate(d){if(!d)return'';const p=d.split('-');return p[2]+'.'+p[1]+'.';}
+function moveLead(id,stage){const l=state.leads.find(x=>x.id===id);if(!l||l.stage===stage)return;
+  l.stage=stage;l.activities=l.activities||[];l.activities.unshift({date:today(),type:'Stage',text:'Verschoben nach "'+stageName(stage)+'"'});
+  if(stage==='kunde'&&!l.status)l.status='aktiv';save();render();toast('→ '+stageName(stage));}
+function quickAdd(){state.leads.push(Object.assign({id:uid(),name:'Neuer Lead',company:'',contact:'',industry:'',location:'',note:'',nextStep:'Erste DM schreiben',score:70,hook:'',dealValue:0,followUpDate:'',activities:[],tasks:[],status:'aktiv',source:'manuell',stage:'neu',createdAt:today()}));save();drawBoard();renderKPIs();openLead(state.leads[state.leads.length-1].id);}
+
+/* ============ LEAD DETAIL MODAL ============ */
+let curId=null;
+function openLead(id){curId=id;const l=state.leads.find(x=>x.id===id);if(!l)return;
+  const box=document.getElementById('modalBox');
+  box.innerHTML=`
+  <div class="mh"><div><h2 id="d_name" contenteditable="true">${esc(l.name)}</h2>
+    <div class="sub" id="d_co" contenteditable="true">${esc(l.company||'Firma hinzufügen…')}</div></div>
+    <button class="x" onclick="closeModal()">✕</button></div>
+  <div class="mb">
+    <div class="two">
+      <div class="field"><label>Stage</label><select id="d_stage">${stages().map(s=>`<option value="${s.id}" ${s.id===l.stage?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>Deal-Wert (€)</label><input id="d_deal" type="number" value="${Number(l.dealValue)||0}"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Kontakt</label><input id="d_contact" value="${esc(l.contact||'')}" placeholder="@insta / Mail / Tel"></div>
+      <div class="field"><label>Quelle</label><select id="d_src">${['manuell','maps','jobportal','empfehlung','ki','csv'].map(s=>`<option ${s===l.source?'selected':''}>${s}</option>`).join('')}</select></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Branche</label><input id="d_ind" value="${esc(l.industry||'')}"></div>
+      <div class="field"><label>Ort</label><input id="d_loc" value="${esc(l.location||'')}"></div>
+    </div>
+    ${l.stage!=='kunde'?`<div class="field"><label>🔔 Follow-up am</label><input id="d_fu" type="date" value="${l.followUpDate||''}"></div>`:
+      `<div class="field"><label>Kundenstatus</label><select id="d_status">${['aktiv','pausiert','beendet'].map(s=>`<option ${s===l.status?'selected':''}>${s}</option>`).join('')}</select></div>`}
+    <div class="field"><label>Nächster Schritt</label><input id="d_next" value="${esc(l.nextStep||'')}"></div>
+
+    <div class="section-t">🤖 KI-Assistent</div>
+    <div class="ai-row">
+      <button class="btn grad sm" onclick="aiAction('dm')">✍️ Nachricht schreiben</button>
+      <button class="btn ghost sm" onclick="aiAction('next')">➡️ Nächster Schritt</button>
+      <button class="btn ghost sm" onclick="aiAction('preis')">💬 Einwand: Preis</button>
+      <button class="btn ghost sm" onclick="aiAction('zeit')">💬 Zeit</button>
+    </div>
+    <div id="aiOut"></div>
+
+    <div class="section-t">📋 Aufgaben</div>
+    <div id="taskList">${taskListHTML(l)}</div>
+    <div class="row" style="gap:7px;margin-top:8px">
+      <input id="newTask" placeholder="Neue Aufgabe…" style="flex:1">
+      <input id="newTaskDue" type="date" style="max-width:150px">
+      <button class="btn ghost sm" onclick="addTask()">+</button>
+    </div>
+
+    <div class="section-t">🕑 Aktivitäten</div>
+    <div class="row" style="gap:7px;margin-bottom:10px">
+      <select id="actType" style="max-width:120px"><option>DM</option><option>Call</option><option>Mail</option><option>Termin</option><option>Angebot</option><option>Notiz</option></select>
+      <input id="actText" placeholder="Was ist passiert?" style="flex:1">
+      <button class="btn ghost sm" onclick="addAct()">+</button>
+    </div>
+    <ul class="tl" id="timeline">${timelineHTML(l)}</ul>
+
+    <div class="row" style="justify-content:space-between;margin-top:22px">
+      <button class="btn danger sm" onclick="delLead()">🗑 Lead löschen</button>
+      <button class="btn primary" onclick="saveLead()">Speichern</button>
+    </div>
+  </div>`;
+  document.getElementById('modal').classList.add('open');
+}
+function taskListHTML(l){if(!l.tasks||!l.tasks.length)return'<div class="muted" style="font-size:12.5px">Noch keine Aufgaben.</div>';
+  return l.tasks.map(t=>`<div class="task ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')"><span class="lbl">${esc(t.text)}</span>${t.due?`<span class="due">${fmtDate(t.due)}</span>`:''}<button class="x" style="width:24px;height:24px;font-size:12px" onclick="delTask('${t.id}')">✕</button></div>`).join('');}
+function timelineHTML(l){if(!l.activities||!l.activities.length)return'<li class="muted" style="border:0;font-size:12.5px">Noch keine Aktivitäten.</li>';
+  return l.activities.map(a=>`<li><div class="t">${fmtDate(a.date)} · ${esc(a.type)}</div><div class="txt">${esc(a.text)}</div></li>`).join('');}
+function cur(){return state.leads.find(x=>x.id===curId);}
+function addTask(){const l=cur();const t=document.getElementById('newTask').value.trim();if(!t)return;
+  l.tasks=l.tasks||[];l.tasks.push({id:uid(),text:t,due:document.getElementById('newTaskDue').value||'',done:false});save();
+  document.getElementById('taskList').innerHTML=taskListHTML(l);document.getElementById('newTask').value='';document.getElementById('newTaskDue').value='';renderKPIs();}
+function toggleTask(id){const l=cur();const t=l.tasks.find(x=>x.id===id);t.done=!t.done;save();document.getElementById('taskList').innerHTML=taskListHTML(l);renderKPIs();}
+function delTask(id){const l=cur();l.tasks=l.tasks.filter(x=>x.id!==id);save();document.getElementById('taskList').innerHTML=taskListHTML(l);renderKPIs();}
+function addAct(){const l=cur();const tx=document.getElementById('actText').value.trim();if(!tx)return;
+  l.activities=l.activities||[];l.activities.unshift({date:today(),type:document.getElementById('actType').value,text:tx});save();
+  document.getElementById('timeline').innerHTML=timelineHTML(l);document.getElementById('actText').value='';}
+async function aiAction(kind){const l=cur();const out=document.getElementById('aiOut');
+  out.innerHTML=`<div class="ai-box"><span class="spin"></span> KI denkt…</div>`;
+  let txt;
+  if(kind==='dm') txt=await aiProxy('dm',leadInputs(l),()=>aiDM(l));
+  else if(kind==='next') txt=await aiProxy('next',leadInputs(l),()=>aiNext(l));
+  else txt=await aiProxy('objection',Object.assign(leadInputs(l),{objection:kind}),()=>aiObjection(l,kind));
+  out.innerHTML=`<div class="ai-box">${esc(txt)}</div><div class="ai-row" style="margin-top:7px"><button class="btn ghost sm" onclick="copyAI(this)">📋 Kopieren</button></div>`;
+  out._txt=txt;
+}
+function copyAI(btn){const t=btn.closest('#aiOut')._txt||'';navigator.clipboard.writeText(t).then(()=>toast('Kopiert'));}
+function saveLead(){const l=cur();if(!l)return;
+  l.name=document.getElementById('d_name').innerText.trim()||l.name;
+  const co=document.getElementById('d_co').innerText.trim();l.company=(co==='Firma hinzufügen…')?'':co;
+  l.dealValue=+document.getElementById('d_deal').value||0;
+  l.contact=document.getElementById('d_contact').value.trim();
+  l.source=document.getElementById('d_src').value;
+  l.industry=document.getElementById('d_ind').value.trim();
+  l.location=document.getElementById('d_loc').value.trim();
+  l.nextStep=document.getElementById('d_next').value.trim();
+  const fu=document.getElementById('d_fu');if(fu)l.followUpDate=fu.value;
+  const stt=document.getElementById('d_status');if(stt)l.status=stt.value;
+  const ns=document.getElementById('d_stage').value;if(ns!==l.stage){l.stage=ns;if(ns==='kunde'&&!l.status)l.status='aktiv';}
+  save();closeModal();render();toast('Gespeichert');}
+function delLead(){if(!confirm('Diesen Lead wirklich löschen?'))return;cloudDelete(curId);state.leads=state.leads.filter(x=>x.id!==curId);save();closeModal();render();toast('Gelöscht');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+/* ============ STAGES EDITOR ============ */
+function editStages(){const box=document.getElementById('smodalBox');
+  box.innerHTML=`<div class="mh"><h2>Spalten anpassen</h2><button class="x" onclick="closeS()">✕</button></div>
+  <div class="mb"><p class="muted" style="font-size:12.5px;margin-bottom:12px">Benenne Phasen um. "Neue Leads" und "Kunde" bleiben als Start/Ziel fix.</p>
+  <div id="stEdit">${stages().map((s,i)=>`<div class="field"><label>${i+1}. Phase</label><input data-i="${i}" value="${esc(s.name)}" ${(s.id==='neu'||s.id==='kunde')?'':''}></div>`).join('')}</div>
+  <div class="row" style="justify-content:space-between;margin-top:10px">
+    <button class="btn ghost sm" onclick="resetStages()">Zurücksetzen</button>
+    <button class="btn primary" onclick="saveStages()">Speichern</button></div></div>`;
+  document.getElementById('smodal').classList.add('open');
+}
+function saveStages(){document.querySelectorAll('#stEdit input').forEach(inp=>{const i=+inp.dataset.i;const v=inp.value.trim();if(v)stages()[i].name=v;});save();closeS();render();toast('Spalten aktualisiert');}
+function resetStages(){state.settings.stages=JSON.parse(JSON.stringify(STAGE_DEFAULT));save();closeS();render();}
+function closeS(){document.getElementById('smodal').classList.remove('open');}
+
+/* ============ KUNDEN ============ */
+function renderKunden(v){
+  const k=state.leads.filter(l=>l.stage==='kunde');
+  const total=k.filter(x=>x.status!=='beendet').reduce((s,x)=>s+(Number(x.dealValue)||0),0);
+  v.innerHTML=`
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div><h1>Kunden</h1><div class="sub">${k.length} gewonnene Kunden · aktiver Umsatz ${money(total)}</div></div>
+    <button class="btn ghost sm" id="expK">⬇️ Export</button>
+  </div>
+  ${k.length?`<div class="cust-grid">${k.map(custHTML).join('')}</div>`:`<div class="panel"><div class="empty"><div class="big">🏆</div>Noch keine Kunden.<br>Zieh Leads im CRM in die Spalte „Kunde".</div></div>`}`;
+  v.querySelector('#expK').onclick=exportLeads;
+  v.querySelectorAll('[data-open]').forEach(c=>c.onclick=()=>openLead(c.dataset.open));
+  v.querySelectorAll('[data-status]').forEach(sel=>sel.onchange=e=>{e.stopPropagation();const l=state.leads.find(x=>x.id===sel.dataset.status);l.status=sel.value;save();renderKunden(v);renderKPIs();});
+}
+function custHTML(l){
+  const upsell=l.nextStep&&/upsell|vip|empfehl/i.test(l.nextStep);
+  return `<div class="panel cust">
+    <div class="top">
+      <div data-open="${l.id}" style="cursor:pointer"><b style="font-size:15px">${esc(l.name)}</b><div class="muted" style="font-size:12.5px">${esc(l.company||'')}${l.location?' · '+esc(l.location):''}</div></div>
+      <div class="rev">${money(l.dealValue)}</div>
+    </div>
+    <div class="line"><span>Status</span>
+      <select data-status="${l.id}" style="width:auto;padding:4px 8px;font-size:12px">${['aktiv','pausiert','beendet'].map(s=>`<option ${s===(l.status||'aktiv')?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="line"><span>Branche</span><span>${esc(l.industry||'–')}</span></div>
+    ${upsell?`<div style="margin-top:10px"><span class="chip">🔁 ${esc(l.nextStep)}</span></div>`:''}
+    <button class="btn ghost sm" data-open="${l.id}" style="width:100%;margin-top:12px">Details öffnen</button>
+  </div>`;
+}
+
+/* ============ THEME ============ */
+function setTheme(t){state.settings.theme=t;document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('#themeSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));save();}
+
+/* ============ TOUR ============ */
+const TOUR=[
+  {ic:'👋',h:'Willkommen im DreamCRM',p:'Dein Mini-CRM für Leads, Pipeline und Kunden – ohne Tool-Chaos. 30 Sekunden, dann kannst du loslegen.'},
+  {ic:'🔎',h:'1. Leads finden',p:'Lass die KI nach Branche & Ort Leads generieren (z.B. Jobportale = Firmen, die gerade Personal suchen) oder trag sie manuell ein. Ein Klick schiebt sie in die Pipeline.'},
+  {ic:'📋',h:'2. Pipeline führen',p:'Zieh Karten von „Neue Leads" bis „Kunde". In jeder Karte: Timeline, Aufgaben, Follow-ups und ein KI-Assistent, der dir Nachrichten schreibt.'},
+  {ic:'🏆',h:'3. Kunden & Umsatz',p:'Gewonnene Deals landen unter „Kunden" inkl. Umsatz und Status. Die KPIs oben rechnen automatisch mit. Viel Erfolg!'}
+];
+let tStep=0;
+function showTour(){tStep=0;document.getElementById('tour').classList.add('open');drawTour();}
+function drawTour(){const s=TOUR[tStep];
+  document.getElementById('tourBox').innerHTML=`<div class="ic">${s.ic}</div><h3>${s.h}</h3><p>${s.p}</p>
+    <div class="dots">${TOUR.map((_,i)=>`<i class="${i===tStep?'on':''}"></i>`).join('')}</div>
+    <div class="row" style="justify-content:center;gap:8px">
+      ${tStep>0?'<button class="btn ghost" onclick="tPrev()">Zurück</button>':''}
+      <button class="btn grad" onclick="tNext()">${tStep<TOUR.length-1?'Weiter':'Jetzt starten 🚀'}</button></div>
+    <button class="btn ghost sm" onclick="endTour()" style="margin-top:10px;opacity:.7">Überspringen</button>`;
+}
+function tNext(){if(tStep<TOUR.length-1){tStep++;drawTour();}else endTour();}
+function tPrev(){if(tStep>0){tStep--;drawTour();}}
+function endTour(){document.getElementById('tour').classList.remove('open');state.settings.onboarded=true;save();}
+
+/* ============ INIT ============ */
+function renderUser(){const el=document.getElementById('userChip');if(!el)return;
+  if(USER.guest){el.textContent='👤 Demo (Vorschau)';return;}
+  const nm=[USER.firstName,USER.lastName].filter(Boolean).join(' ').trim();
+  el.textContent='👤 '+(nm||'Eingeloggt');}
+async function init(){
+  load();
+  setTheme(state.settings.theme||'dreamlife');
+  renderUser();
+  if(CLOUD){ await cloudLoad(); setTheme(state.settings.theme||'dreamlife'); }
+  if(!state.leads.length&&!state.settings.onboarded&&USER.guest)seed();
+  document.getElementById('themeSwitch').onclick=e=>{const b=e.target.closest('button');if(b)setTheme(b.dataset.t);};
+  document.getElementById('tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)setTab(b.dataset.tab);};
+  document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal();};
+  document.getElementById('smodal').onclick=e=>{if(e.target.id==='smodal')closeS();};
+  render();
+  if(!state.settings.onboarded)setTimeout(showTour,500);
+}
+init();
+</script>
+</body>
+</html>
